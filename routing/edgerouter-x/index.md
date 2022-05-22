@@ -1,10 +1,17 @@
+## Goal
+
+Establish an IPv6 in GRE/SIT tunnel from an EdgeRouter-X
+to Route48 or Hurricane Electric.
+
 ## IP Addresses
 
 In this document I use these addresses:
 
-Tunnel Network (allocated IPv6 range): 2001:db8:4::/48
-Server Address (tunnel server): 128.66.0.1
-Remote Address (my IP address): 192.0.2.1
+Server IPv4 Address (tunnel server): 128.66.0.1
+Client IPv4 Address (my IP address): 192.0.2.1
+Routed /48 Tunnel Network: 2001:db8:4::/48
+Server IPv6 Address: 2001:db8:4::1/48
+Client IPv6 Address: 2001:db8:4::2/48
 
 ## GRE Tunnel Interface
 
