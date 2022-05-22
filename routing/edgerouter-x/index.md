@@ -7,15 +7,17 @@ to Route48 or Hurricane Electric.
 
 In this document I use these addresses:
 
+```
 Server IPv4 Address (tunnel server): 128.66.0.1
 Client IPv4 Address (my IP address): 192.0.2.1
 Routed /48 Tunnel Network: 2001:db8:4::/48
 Server IPv6 Address: 2001:db8:4::1/48
 Client IPv6 Address: 2001:db8:4::2/48
+```
 
 ## GRE Tunnel Interface
 
-To establish the tunnel we create a tunnel interface.
+To establish the tunnel we create a tunnel interface:
 
 ```
 set interfaces tunnel tun0 description "route48 tunnel"
@@ -98,9 +100,14 @@ rules look like this:
 
 ## Outbound Routing
 
+I already have other IPv6 connectivity, but I want traffic for the
+tunneled network to use the tunnel.
+
 In order to send traffic for the allocated /48 through this tunnel,
 without impacting traffic from other IPv6 ranges, I create a route
-table and apply it to the source address range:
+table and apply it to the source address range.  As a result, traffic
+from my network that is using addresses in the allocated range will
+go out through the tunnel:
 
 ```
 set protocols static table 101 interface-route6 ::/0 next-hop-interface tun0
