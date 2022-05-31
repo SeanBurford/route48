@@ -219,3 +219,7 @@ to avoid some problems.  See these links for more info:
 *  [Random lockups with HWNAT offload enabled](https://community.ui.com/releases/EdgeMAX-EdgeRouter-Firmware-v2-0-9-v2-0-9/d75f346d-d734-4026-97a8-7b2d5cc4e079)
 *  [EdgeRouter Hardware Offloading](https://help.ui.com/hc/en-us/articles/115006567467-EdgeRouter-Hardware-Offloading)
 *  [Speedtest with/without HW Offload](https://www.patnotebook.com/edgerouter-x-hardware-offloading/)
+
+### Further Reading
+
+*  [VyOS Tunnel Interfaces Doc](https://docs.vyos.io/en/equuleus/configuration/interfaces/tunnel.html)
