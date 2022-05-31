@@ -52,12 +52,14 @@ set interfaces tunnel tun0 ttl 64
 
 ## Firewall Rules
 
-Since I want to control inbound traffic, I add some
-firewall rules to the tunnel interface:
+Since I want to control traffic, I add some firewall
+rules to the tunnel interface:
 
 ```
 set interfaces tunnel tun0 firewall in name ESTAB
 set interfaces tunnel tun0 firewall in ipv6-name ESTAB6
+set interfaces tunnel tun0 firewall local name ESTAB
+set interfaces tunnel tun0 firewall local ipv6-name ESTAB6
 set interfaces tunnel tun0 firewall out ipv6-name TO_WAN6
 set interfaces tunnel tun0 firewall out name TO_WAN      
 ```
