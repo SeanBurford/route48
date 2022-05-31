@@ -1,9 +1,39 @@
 ## Goal
 
-Establish an IPv6 in GRE/SIT tunnel from an EdgeRouter-X
-to Route48 or Hurricane Electric.
+Establish an IPv6 in GRE/SIT tunnel from a Ubiquiti
+EdgeMax device (eg. an EdgeRouter-X) to Route48 or
+Hurricane Electric.
 
-## IP Addresses
+### Simple Examples
+
+If you just want to get up and running, without any
+firewalling or routing, these services provide basic
+configuration examples for many devices:
+
+Hurricane Electric:
+
+1. Log into https://tunnelbroker.net
+2. Click on one of your configured tunnels
+3. Select the `Example Configurations` tab
+4. Select a device from the dropdown.
+
+Route48:
+
+1. Log into https://route48.org
+2. Select `IPv6 Tunnels`
+3. Click `Config` on a GRE/SIT tunnel
+4. Select a device from the tabs
+
+### UI
+
+The EdgeMax web UI has poor support for IPv6.  Most of
+the following configuration can easily be replicated
+either in the `config tree` tab of the UI, or on the
+command line via SSH.  Examining the `config tree` tab
+can be helpful since it provides hints about what settings
+are available.
+
+### IP Addresses
 
 In this document I use these addresses:
 
@@ -27,6 +57,14 @@ set interfaces tunnel tun0 address 2001:db8:4::2/48
 set interfaces tunnel tun0 encapsulation sit           
 set interfaces tunnel tun0 multicast disable     
 set interfaces tunnel tun0 ttl 64     
+```
+
+## Firewall Rules
+
+Since I want to control inbound traffic, I add some
+firewall rules to the tunnel interface:
+
+```
 set interfaces tunnel tun0 firewall in name ESTAB
 set interfaces tunnel tun0 firewall in ipv6-name ESTAB6
 set interfaces tunnel tun0 firewall out ipv6-name TO_WAN6
@@ -98,10 +136,19 @@ rules look like this:
     }
 ```
 
-## Outbound Routing
+## Simple Outbound Routing
 
-I already have other IPv6 connectivity, but I want traffic for the
-tunneled network to use the tunnel.
+If I just wanted to route all IPv6 traffic through the tunnel, I
+would use this command:
+
+```
+set protocols static interface-route6 ::/0 next-hop-interface tun0
+```
+
+## Source Based Outbound Routing
+
+In my case I already have other IPv6 connectivity, but I want traffic
+for the tunneled network to use the tunnel.
 
 In order to send traffic for the allocated /48 through this tunnel,
 without impacting traffic from other IPv6 ranges, I create a route
@@ -117,14 +164,16 @@ set firewall ipv6-modify IPv6_OUT rule 30 modify table 101
 set firewall ipv6-modify IPv6_OUT rule 30 source address 2001:db8:4::/48
 ```
 
-And I assign the ipv6-modify ruleset to my internal network interfaces
-on the EdgeRouter-X:
+And I assign the ipv6-modify ruleset to my internal network interface(s):
 
 ```
 set interfaces ethernet eth0 firewall in ipv6-modify IPv6_OUT
 ```
 
 ## Confirmation
+
+Here are a couple of commands to verify that the router can reach the
+other side of the tunnel.
 
 Examining the routing table:
 
@@ -145,4 +194,3 @@ PING 2001:db4:4::1(2001:db8:4::1) 56 data bytes
 64 bytes from 2001:db8:4::1: icmp_seq=2 ttl=64 time=23.8 ms
 64 bytes from 2001:db8:4::1: icmp_seq=3 ttl=64 time=23.7 ms
 ```
-
