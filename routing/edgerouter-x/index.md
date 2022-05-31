@@ -24,15 +24,6 @@ Route48:
 3. Click `Config` on a GRE/SIT tunnel
 4. Select a device from the tabs
 
-### UI
-
-The EdgeMax web UI has poor support for IPv6.  Most of
-the following configuration can easily be replicated
-either in the `config tree` tab of the UI, or on the
-command line via SSH.  Examining the `config tree` tab
-can be helpful since it provides hints about what settings
-are available.
-
 ### IP Addresses
 
 In this document I use these addresses:
@@ -170,6 +161,21 @@ And I assign the ipv6-modify ruleset to my internal network interface(s):
 set interfaces ethernet eth0 firewall in ipv6-modify IPv6_OUT
 ```
 
+## Apply the config
+
+To check the config diff before applying it:
+
+```
+show
+```
+
+To apply and save the config:
+
+```
+commit
+save
+```
+
 ## Confirmation
 
 Here are a couple of commands to verify that the router can reach the
@@ -194,3 +200,22 @@ PING 2001:db4:4::1(2001:db8:4::1) 56 data bytes
 64 bytes from 2001:db8:4::1: icmp_seq=2 ttl=64 time=23.8 ms
 64 bytes from 2001:db8:4::1: icmp_seq=3 ttl=64 time=23.7 ms
 ```
+
+## Notes
+
+### UI
+
+The EdgeMax web UI has poor support for IPv6, however
+this configuration can easily be replicated either in the
+`config tree` tab of the UI, or on the command line via SSH.
+Examining the `config tree` tab can be helpful since it
+provides hints about what settings are available.
+
+### Hardware offload
+
+On older firmware you needed to disable hardware offload
+to avoid some problems.  See these links for more info:
+
+*  [Random lockups with HWNAT offload enabled](https://community.ui.com/releases/EdgeMAX-EdgeRouter-Firmware-v2-0-9-v2-0-9/d75f346d-d734-4026-97a8-7b2d5cc4e079)
+*  [EdgeRouter Hardware Offloading](https://help.ui.com/hc/en-us/articles/115006567467-EdgeRouter-Hardware-Offloading)
+*  [Speedtest with/without HW Offload](https://www.patnotebook.com/edgerouter-x-hardware-offloading/)
