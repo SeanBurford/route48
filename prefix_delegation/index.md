@@ -1,7 +1,7 @@
 ## Goal
 
-Assign entire prefixes to that clients can use a range of addresses from those
-prefixes.
+Configure a network so that clients can request prefixes, enabling them to
+send and receive traffic for a range of addresses.
 
 ## Solution Components
 
@@ -14,7 +14,7 @@ prefixes.
 In this document I use these addresses:
 
 ```
-DHCP Server: 2001:db8:4:fffe::1
+DHCP Server: 2001:db8:4:1::1
 Routed /48 Tunnel Network: 2001:db8:4::/48
 ```
 
@@ -33,7 +33,7 @@ like a /64, and it allocates a /64 for individual client addresses:
 ...
       {
         "name": "unicast",
-        "data": "2001:db8:4:fffe::1"
+        "data": "2001:db8:4:1::1"
       }
     ],
 ...
@@ -63,12 +63,16 @@ like a /64, and it allocates a /64 for individual client addresses:
 
 ### Forwarding DHCPv6 and Learning routes: Cisco DHCPv6 Relay
 
+My DHCP server is on a different VLAN than my clients, so the Cisco router
+in the middle needs to relay DHCP requests and responses.  When it does this
+it needs to inspect the responses to learn routes for the allocated prefixes.
+
 To enable DHCPv6 relay for clients on Vlan200 to a DHCPv6 server on Vlan231:
 
 ```
 # configure term
 (config)# interface Vlan200
-(config-if)# ipv6 dhcp relay destination 2001:db8:4:fffe::1 Vlan231 
+(config-if)# ipv6 dhcp relay destination 2001:db8:4:1::1 Vlan231 
 ```
 
 Once we have users, we can check on learnt routes:
@@ -95,7 +99,7 @@ page has configurations for using SLAAC or DHCP for address assignment or prefix
 delegation, along with route discovery.
 
 This configuration uses SLAAC for address configuration and DHCP for prefix
-delegation.
+delegation:
 
 ```
 # cat /etc/network/interfaces.d/wlp3s0-pd
