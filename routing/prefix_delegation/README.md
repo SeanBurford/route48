@@ -182,3 +182,6 @@ uses prefix delegation to get a prefix from upstream.
 [This blog post](https://blog.g3rt.nl/systemd-networkd-dhcpv6-pd-configuration.html) contains
 a good example.
 
+## What's next?
+
+Take a look at ways to use a prefix [in Linux](../../traffic/linux/README.md)

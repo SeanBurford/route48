@@ -222,6 +222,11 @@ to avoid some problems.  See these links for more info:
 *  [EdgeRouter Hardware Offloading](https://help.ui.com/hc/en-us/articles/115006567467-EdgeRouter-Hardware-Offloading)
 *  [Speedtest with/without HW Offload](https://www.patnotebook.com/edgerouter-x-hardware-offloading/)
 
-### Further Reading
+## Further Reading
 
 *  [VyOS Tunnel Interfaces Doc](https://docs.vyos.io/en/equuleus/configuration/interfaces/tunnel.html)
+
+## What's Next?
+
+Now that you can route tunneled traffic, take a look at
+[prefix delegation](../prefix_delegation/README.md)
