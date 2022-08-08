@@ -7,41 +7,12 @@ to learn how prefixes are assigned.
 
 ## Solution Components
 
-*  DHCP script
 *  Receiving Traffic: AnyIP
 *  Sending Traffic: Non Local Bind
    *  socat
    *  traceroute
 *  Sending Traffic: IP_FREEBIND
    *  Freebind
-
-### DHCP Script
-
-This script will add an AnyIP route, as described below.
-
-`/etc/dhcp/dhclient-exit-hooks.d/prefix-delegation`:
-
-```
-#!/bin/bash
-
-# $interface:          Device (eg. eth0)
-# $reason:             Reason for DHCP result.
-# $new_ip6_prefix:     Assigned prefix (eg. '2001:db8:4:7000::/56')
-# $new_max_life:       TTL for new prefix ('0' = requested prefix rejected)
-# $new_preferred_life  TTL for new prefix ('0' = rejected)
-
-if [ ! -z "$new_ip6_prefix" ]; then
-        if [ "$new_max_life" != "0" ]; then
-                echo "Adding prefix ${new_ip6_prefix}"
-                ip -6 route add local "$new_ip6_prefix" dev lo 2>/dev/null
-        fi
-
-        if [ ! -z "$old_ip6_prefix" ] && [ "$old_ip6_prefix" != "$new_ip6_prefix" ]; then
-                echo "Removing old prefix ${old_ip6_prefix}"
-                ip -6 route del local "$old_ip6_prefix" dev lo
-        fi
-fi
-```
 
 ### IP Addresses
 
@@ -79,6 +50,34 @@ $ ping 2001:db8:4:7000::4
 PING 2001:db8:4:7000::4(2001:db8:4:7000::4) 56 data bytes
 64 bytes from 2001:db8:4:7000::4: icmp_seq=1 ttl=63 time=2.63 ms
 64 bytes from 2001:db8:4:7000::4: icmp_seq=2 ttl=63 time=2.36 ms
+```
+
+### DHCP Script
+
+This script will add an AnyIP route on the client machine when it receives a prefix.
+
+`/etc/dhcp/dhclient-exit-hooks.d/prefix-delegation`:
+
+```
+#!/bin/bash
+
+# $interface:          Device (eg. eth0)
+# $reason:             Reason for DHCP result.
+# $new_ip6_prefix:     Assigned prefix (eg. '2001:db8:4:7000::/56')
+# $new_max_life:       TTL for new prefix ('0' = requested prefix rejected)
+# $new_preferred_life  TTL for new prefix ('0' = rejected)
+
+if [ ! -z "$new_ip6_prefix" ]; then
+        if [ "$new_max_life" != "0" ]; then
+                echo "Adding prefix ${new_ip6_prefix}"
+                ip -6 route add local "$new_ip6_prefix" dev lo 2>/dev/null
+        fi
+
+        if [ ! -z "$old_ip6_prefix" ] && [ "$old_ip6_prefix" != "$new_ip6_prefix" ]; then
+                echo "Removing old prefix ${old_ip6_prefix}"
+                ip -6 route del local "$old_ip6_prefix" dev lo
+        fi
+fi
 ```
 
 ## Sending Traffic: Non Local Bind
@@ -144,6 +143,16 @@ $ freebind -r 2001:db8:4:7000::/64 curl https://ifconfig.co/
 $ freebind -r 2001:db8:4:7000::/64 curl https://ifconfig.co/
 2001:db8:4:7000:f896:47fb:3ec7:5aaf
 ```
+
+## Notes
+
+To cover:
+
+*  https://www.davidc.net/networking/ipv6-source-address-selection-linux
+*  https://superuser.com/questions/296789/how-does-ipv6-source-address-selection-work-in-linux
+*  https://biplane.com.au/blog/?p=30
+*  https://blog.widodh.nl/2016/03/docker-and-ipv6-prefix-delegation/
+
 
 
 
