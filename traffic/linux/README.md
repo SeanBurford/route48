@@ -1,13 +1,11 @@
 ## Goal
 
-Explore methods of sending/receiving traffic for a prefix.
+Explore methods of sending traffic for a prefix.
 
-Have a look at [prefix delegation](../../routing/prefix_delegation/README.md)
-to learn how prefixes are assigned.
+Have a look at [receiving](receiving.md) to learn to request a prefix.
 
 ## Solution Components
 
-*  Receiving Traffic: AnyIP
 *  Sending Traffic: Non Local Bind
    *  socat
    *  traceroute
@@ -20,64 +18,6 @@ In this document I use these addresses:
 
 ```
 /64 Prefix: 2001:db8:4:7000::/64
-```
-
-## Receiving Traffic: AnyIP
-
-[AnyIP](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git)
-is the capability to receive packets and establish incoming connections
-on IPs we have not explicitly configured on the machine.
-
-Enabling AnyIP is simple:
-
-```
-# ip -6 route add local  2001:db8:4:7000::/64 dev lo
-```
-
-You can verify the entry with:
-
-```
-$ ip -6 route list table local
-...
-local 2001:db8:4:7000::/64 dev lo metric 1024 pref medium
-...
-```
-
-We can now reach that host using any address in the prefix:
-
-```
-$ ping 2001:db8:4:7000::4
-PING 2001:db8:4:7000::4(2001:db8:4:7000::4) 56 data bytes
-64 bytes from 2001:db8:4:7000::4: icmp_seq=1 ttl=63 time=2.63 ms
-64 bytes from 2001:db8:4:7000::4: icmp_seq=2 ttl=63 time=2.36 ms
-```
-
-### DHCP Script
-
-This script will add an AnyIP route on the client machine when it receives a prefix.
-
-`/etc/dhcp/dhclient-exit-hooks.d/prefix-delegation`:
-
-```
-#!/bin/bash
-
-# $interface:          Device (eg. eth0)
-# $reason:             Reason for DHCP result.
-# $new_ip6_prefix:     Assigned prefix (eg. '2001:db8:4:7000::/56')
-# $new_max_life:       TTL for new prefix ('0' = requested prefix rejected)
-# $new_preferred_life  TTL for new prefix ('0' = rejected)
-
-if [ ! -z "$new_ip6_prefix" ]; then
-        if [ "$new_max_life" != "0" ]; then
-                echo "Adding prefix ${new_ip6_prefix}"
-                ip -6 route add local "$new_ip6_prefix" dev lo 2>/dev/null
-        fi
-
-        if [ ! -z "$old_ip6_prefix" ] && [ "$old_ip6_prefix" != "$new_ip6_prefix" ]; then
-                echo "Removing old prefix ${old_ip6_prefix}"
-                ip -6 route del local "$old_ip6_prefix" dev lo
-        fi
-fi
 ```
 
 ## Sending Traffic: Non Local Bind

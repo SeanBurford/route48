@@ -3,11 +3,14 @@
 Configure a network so that clients can request prefixes, enabling them to
 send and receive traffic for a range of addresses.
 
+
+Have a look at [receiving](../../traffic/linux/receiving.md)
+to learn how prefixes are requested and used on the client side.
+
 ## Solution Components
 
 *  Providing prefixes: ISC Kea DHCPv6 server
 *  Forwarding DHCPv6 and Learning routes: Cisco DHCPv6 Relay
-*  Requesting a prefix: Linux Client
 
 ### IP Addresses
 
@@ -92,96 +95,6 @@ S   2001:db8:4:7000::/64 [1/0]
 
 *  [Cisco provided examples](https://community.cisco.com/t5/networking-knowledge-base/stateful-dhcpv6-relay-configuration-example/ta-p/3149338)
 
-### Requesting a prefix: Linux Client
-
-The [Debian IPv6PrefixDelegation](https://wiki.debian.org/IPv6PrefixDelegation)
-page has configurations for using SLAAC or DHCP for address assignment or prefix 
-delegation, along with route discovery.
-
-This configuration uses SLAAC for address configuration and DHCP for prefix
-delegation:
-
-```
-# cat /etc/network/interfaces.d/wlp3s0-pd
-iface wlp3s0 inet6 auto
-	dhcp 1
-	accept_ra 2
-	request_prefix 1
-```
-
-`accept_ra 2` learns the default route from SLAAC regardless of DHCP.  Possible
-values are:
-
-0.  Do not accept router advertisements
-1.  Accept router advertisements if forwarding is disabled
-2.  Accept router advertisements even if forwarding is enabled
-
-This interface can be enabled with `ifup wlp3s0`:
-
-```
-# ifup wlp3s0
-Listening on Socket/wlp3s0
-Sending on   Socket/wlp3s0
-PRC: Soliciting for leases (INIT).
-XMT: Forming Solicit, 0 ms elapsed.
-XMT:  X-- IA_PD c1:a1:07:3e
-XMT:  | X-- Request renew in  +3600
-XMT:  | X-- Request rebind in +5400
-XMT: Solicit on wlp3s0, interval 1080ms.
-RCV: Advertise message on wlp3s0 from fe80::...
-RCV:  X-- IA_PD c1:a1:07:3e
-RCV:  | X-- starts 1658559376
-RCV:  | X-- t1 - renew  +1000
-RCV:  | X-- t2 - rebind +2000
-RCV:  | X-- [Options]
-RCV:  | | X-- IAPREFIX 2001:db8:4:7000::/64
-RCV:  | | | X-- Preferred lifetime 3000.
-RCV:  | | | X-- Max lifetime 4000.
-RCV:  X-- Server ID: 00:01:00:01:27:dd:...
-RCV:  Advertisement recorded.
-PRC: Selecting best advertised lease.
-PRC: Considering best lease.
-PRC:  X-- Initial candidate 00:01:00:01:27:dd:... (s: 10105, p: 0).
-XMT: Forming Request, 0 ms elapsed.
-XMT:  X-- IA_PD c1:a1:07:3e
-XMT:  | X-- Requested renew  +3600
-XMT:  | X-- Requested rebind +5400
-XMT:  | | X-- IAPREFIX 2001:db8:4:7000::/64
-XMT:  | | | X-- Preferred lifetime +7200
-XMT:  | | | X-- Max lifetime +7500
-XMT:  V IA_PD appended.
-XMT: Request on wlp3s0, interval 1030ms.
-RCV: Reply message on wlp3s0 from fe80::...
-RCV:  X-- IA_PD c1:a1:07:3e
-RCV:  | X-- starts 1658559378
-RCV:  | X-- t1 - renew  +1000
-RCV:  | X-- t2 - rebind +2000
-RCV:  | X-- [Options]
-RCV:  | | X-- IAPREFIX 2001:db8:4:7000::/64
-RCV:  | | | X-- Preferred lifetime 3000.
-RCV:  | | | X-- Max lifetime 4000.
-RCV:  X-- Server ID: 00:01:00:01:27:dd:...
-PRC: Bound to lease 00:01:00:01:27:dd:...
-```
-
-The delegated prefix isn't assigned to anything by default, however
-we can now observe it on the Cisco device (`show ipv6 route`) and
-can assign addresses from it to an interface:
-
-```
-# ip address add 2001:db8:4:7000::1/64 dev wlp3s0
-# traceroute6 -s 2001:db8:4:7000::1 ipv6.google.com
-```
-
-#### Systemd-networkd
-
-Systemd-networkd users should refer to the
-[relevant documentation](https://www.freedesktop.org/software/systemd/man/systemd.network.html)
-for `/etc/systemd/network/`.  The examples at the end include a router which
-uses prefix delegation to get a prefix from upstream.
-[This blog post](https://blog.g3rt.nl/systemd-networkd-dhcpv6-pd-configuration.html) contains
-a good example.
-
 ## What's next?
 
-Take a look at ways to use a prefix [in Linux](../../traffic/linux/README.md)
+Take a look at ways to request a prefix [in Linux](../../traffic/linux/receiving.md)
